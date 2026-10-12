@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ПВЗ: Рабочая смена</title>
+<style>
+:root{--ink:#202a35;--muted:#687482;--blue:#6b4eff;--green:#168653;--bg:#eef1f7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Arial,sans-serif}
+.app{max-width:950px;margin:auto;padding:12px}.top{background:#fff;border-radius:18px;padding:15px;box-shadow:0 5px 20px #15233b12}
+h1{font-size:24px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}.stat{background:#f4f6fa;padding:9px;border-radius:12px;font-size:12px;color:var(--muted)}.stat b{display:block;color:var(--ink);font-size:17px;margin-top:3px}
+.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}.card{background:#fff;padding:14px;border-radius:18px;box-shadow:0 5px 20px #15233b0b;margin-bottom:12px}h2{font-size:17px;margin:0 0 10px}
+.scene{height:300px;border-radius:15px;position:relative;overflow:hidden;background:linear-gradient(#faf6e9 0 67%,#d8dce3 67%);border:2px solid #e4e7ed}
+.sign{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:#6b4eff;color:white;border-radius:8px;padding:6px 13px;font-weight:900;letter-spacing:1px;white-space:nowrap}
+.door{position:absolute;right:9px;top:55px;width:49px;height:100px;background:#bdd8e7;border:5px solid #8fa8b7;border-radius:5px}
+.counter{position:absolute;left:35%;bottom:22%;width:40%;height:47px;background:#a86b43;border:4px solid #835031;border-radius:7px}
+.monitor{position:absolute;left:47%;bottom:39%;width:48px;height:31px;background:#202c3a;border:4px solid #7c8791;border-radius:4px}
+.shelf{position:absolute;top:29%;width:25%;height:36%;border:5px solid #98734f;background:repeating-linear-gradient(to bottom,#d8b68c 0 7px,#8c6947 7px 12px);border-radius:4px;cursor:pointer;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;padding:3px}
+.shelf:active{outline:4px solid #8e7bff}.lefts{left:5%}.rights{right:5%}
+.mini{font-size:18px;filter:drop-shadow(0 1px 1px #555)}.customer{position:absolute;left:16%;bottom:7%;font-size:34px;transition:left .3s}.customer.wait{left:44%}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}button{font:inherit;font-weight:750;border:0;border-radius:11px;padding:11px 10px;background:#252e3a;color:#fff;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.98)}button:disabled{opacity:.35}.primary{background:var(--blue)}.success{background:var(--green)}.warn{background:#d97716}.soft{background:#eef0f5;color:#27313d}.danger{background:#c63a46}
+.ticket{border:1px dashed #c9ced7;background:#fafbfe;padding:12px;border-radius:13px}.ticket strong{font-size:16px}.code{font-family:monospace;font-size:20px;letter-spacing:2px;font-weight:900;color:#6045df;margin:7px 0}.status{display:inline-block;background:#e7f8ee;color:#147447;padding:4px 8px;border-radius:20px;font-size:12px;font-weight:800}
+.tasks{display:grid;gap:8px}.task{padding:9px;border-radius:11px;background:#f5f6fa;font-size:13px}.task.done{background:#e7f8ee}.log{max-height:145px;overflow:auto;font-size:13px}.log div{padding:7px 0;border-bottom:1px solid #edf0f3}
+.panelgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tiny{font-size:12px;color:var(--muted)}.modal{position:fixed;inset:0;background:#0c1326aa;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.modal.show{display:flex}.modalbox{background:#fff;border-radius:18px;padding:20px;max-width:380px;width:100%}.modalbox h2{font-size:21px}.modalbox p{color:var(--muted);line-height:1.45}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.scene{height:270px}.stats{grid-template-columns:repeat(2,1fr)}.app{padding:8px}.top,.card{border-radius:15px}.lefts{width:27%}.rights{width:27%}}
+</style></head>
+<body><div class="app">
+<div class="top"><h1>📦 ПВЗ: Рабочая смена</h1><div class="sub">Интерактивный симулятор · нажимай на предметы и выполняй заказы</div>
+<div class="stats"><div class="stat">💰 Баланс<b id="cash">45 000 ₽</b></div><div class="stat">⭐ Рейтинг<b id="rate">4.9</b></div><div class="stat">📦 Посылок на складе<b id="stock">6</b></div><div class="stat">🕒 Время смены<b id="clock">09:00</b></div></div></div>
+<div class="layout"><main>
+<div class="card"><h2>🏪 Твой пункт выдачи</h2><div class="scene">
+<div class="sign">ПУНКТ ВЫДАЧИ</div><div class="door"></div>
+<div class="shelf lefts" onclick="inspectShelf('A')"><span class="mini">📦</span><span class="mini">🛍️</span><span class="mini">📦</span><span class="mini">📦</span><span class="mini">👟</span><span class="mini">📦</span></div>
+<div class="shelf rights" onclick="inspectShelf('B')"><span class="mini">📦</span><span class="mini">🎧</span><span class="mini">📦</span><span class="mini">📦</span><span class="mini">🧸</span><span class="mini">📦</span></div>
+<div class="counter"></div><div class="monitor"></div><div class="customer" id="avatar">🧍</div>
+</div><div class="hint">👆 Нажми на левый или правый стеллаж, чтобы искать посылку по ячейкам.</div>
+<div class="btns"><button class="primary" onclick="newCustomer()">🔔 Позвать клиента</button><button class="warn" onclick="truck()">🚚 Приёмка поставки</button><button class="success" onclick="scan()">📱 Сканировать посылку</button><button class="soft" onclick="nextDay()">🌙 Завершить смену</button></div></div>
+<div class="card"><h2>🎯 Текущий заказ</h2><div id="order" class="ticket"><span class="status">Готов к работе</span><p>Позови клиента, чтобы получить первый заказ.</p></div><div class="btns"><button class="success" onclick="handOver()">✅ Выдать заказ</button><button class="danger" onclick="returnItem()">↩️ Оформить возврат</button></div></div>
+</main><aside>
+<div class="card"><h2>🧾 Задачи смены</h2><div class="tasks" id="tasks"></div></div>
+<div class="card"><h2>🛠️ Улучшения</h2><div class="panelgrid"><button class="soft" onclick="upgrade('scanner')">📱 Сканер<br><span class="tiny">8 000 ₽</span></button><button class="soft" onclick="upgrade('shelf')">🗄️ Стеллажи<br><span class="tiny">6 000 ₽</span></button><button class="soft" onclick="upgrade('coffee')">☕ Кофе клиентам<br><span class="tiny">3 000 ₽</span></button><button class="soft" onclick="hire()">👨‍💼 Нанять сотрудника<br><span class="tiny">12 000 ₽</span></button></div></div>
+<div class="card"><h2>📣 События</h2><div class="log" id="events"></div></div>
+<div class="card"><h2>🏙️ Бизнес</h2><div class="tiny" id="business">Один ПВЗ · владелец работает сам</div><button class="primary" style="width:100%;margin-top:9px" onclick="branch()">🏪 Открыть второй ПВЗ · 100 000 ₽</button></div>
+</aside></div></div>
+<div class="modal" id="modal"><div class="modalbox"><h2 id="mtitle"></h2><p id="mbody"></p><button class="primary" style="width:100%" onclick="closeModal()">Продолжить</button></div></div>
+<script>
+const $=id=>document.getElementById(id);
+let g={cash:45000,rate:4.9,stock:6,mins:0,customer:false,order:null,found:false,scanned:false,scanner:false,shelf:false,coffee:false,staff:0,branches:1,served:0,returns:0,taskServe:0,taskScan:0,taskDelivery:0};
+const products=[["кроссовки","👟"],["наушники","🎧"],["футболка","👕"],["косметика","🧴"],["игрушка","🧸"],["рюкзак","🎒"],["чехол для телефона","📱"]];
+const codes=["A-104","A-208","B-116","B-302","A-411","B-207","A-509"];
+function log(t){let el=$("events");el.innerHTML="<div>"+t+"</div>"+el.innerHTML}
+function rub(n){return Math.floor(n).toLocaleString("ru-RU")+" ₽"}
+function render(){ $("cash").textContent=rub(g.cash);$("rate").textContent=g.rate.toFixed(1);$("stock").textContent=g.stock;$("clock").textContent=String(9+Math.floor(g.mins/60)).padStart(2,"0")+":"+String(g.mins%60).padStart(2,"0");$("business").textContent=`${g.branches} ПВЗ · сотрудников: ${g.staff}`;
+$("tasks").innerHTML=[["Позвать клиента",g.customer],["Найти посылку на стеллаже",g.found],["Отсканировать штрихкод",g.scanned],["Выдать заказ",g.taskServe>0],["Принять поставку",g.taskDelivery>0]].map(([t,d])=>`<div class="task ${d?"done":""}">${d?"✅":"⬜"} ${t}</div>`).join("");
+if(g.order){$("order").innerHTML=`<span class="status">${g.order.state}</span><div style="margin-top:9px">Клиент: <b>${g.order.name}</b></div><div style="margin-top:5px">Товар: <b>${g.order.product[1]} ${g.order.product[0]}</b></div><div class="code">${g.order.code}</div><div class="tiny">Найди посылку на соответствующем стеллаже и отсканируй её.</div>`}else $("order").innerHTML='<span class="status">Нет активного заказа</span><p>Нажми «Позвать клиента», чтобы начать обслуживание.</p>'}
+function modal(title,body){$("mtitle").textContent=title;$("mbody").textContent=body;$("modal").classList.add("show")}function closeModal(){$("modal").classList.remove("show")}
+function tick(n=4){g.mins+=n;if(g.mins>=480){g.mins=480;modal("Смена окончена","Рабочий день закончился. Нажми «Завершить смену», чтобы получить дневной итог.")}}
+function newCustomer(){if(g.customer){log("🔔 Клиент уже ждёт у стойки.");return}if(g.mins>=480)return modal("Смена окончена","Заверши текущий день.");let p=products[Math.floor(Math.random()*products.length)];g.order={name:["Анна","Илья","Максим","Настя","Дмитрий","Лера","Артём","Саша"][Math.floor(Math.random()*8)],product:p,code:codes[Math.floor(Math.random()*codes.length)],state:"Клиент ожидает"};g.customer=true;g.found=false;g.scanned=false;$("avatar").classList.add("wait");tick(3);log(`👤 ${g.order.name} пришёл за заказом.`);render()}
+function inspectShelf(which){if(!g.customer||!g.order){modal("Пока пусто","Сначала позови клиента — у него будет номер ячейки.");return}let needed=g.order.code[0];if(which===needed){g.found=true;g.order.state="Посылка найдена";tick(5);log(`🔎 На стеллаже ${which} найдена посылка ${g.order.code}.`);modal("Посылка найдена!",`Ты нашёл ${g.order.product[0]} в ячейке ${g.order.code}. Теперь отсканируй штрихкод.`)}else{g.rate=Math.max(1,g.rate-.1);tick(8);log("❌ Не тот стеллаж. Клиент ждёт дольше, рейтинг немного снизился.");modal("Не тот стеллаж","Посмотри на первую букву номера ячейки: A — левый стеллаж, B — правый.");}render()}
+function scan(){if(!g.customer||!g.order)return modal("Нет заказа","Сначала позови клиента.");if(!g.found)return modal("Сначала найди посылку","Нажми на нужный стеллаж. Номер ячейки указан в заказе.");if(g.scanned){modal("Уже отсканировано","Посылка готова к выдаче.");return}g.scanned=true;g.order.state="Штрихкод считан";tick(g.scanner?1:3);log("📱 Штрихкод считан. Можно выдавать заказ.");render()}
+function handOver(){if(!g.customer||!g.order)return modal("Нет клиента","Позови клиента, чтобы начать выдачу.");if(!g.found||!g.scanned)return modal("Заказ ещё не готов","Найди посылку на стеллаже и отсканируй штрихкод.");let earn=g.scanner?115:100;if(g.coffee)earn+=10;g.cash+=earn;g.stock=Math.max(0,g.stock-1);g.rate=Math.min(5,g.rate+.03);g.served++;g.taskServe++;g.customer=false;g.order=null;$("avatar").classList.remove("wait");tick(2);log(`✅ Заказ выдан. Доход +${rub(earn)}.`);render();if(g.taskServe===3)modal("Задание выполнено!","Ты выдал 3 заказа. Продолжай — рейтинг и доход растут.");}
+function returnItem(){if(!g.customer||!g.order)return modal("Нет клиента","Возврат можно оформить только для пришедшего клиента.");g.cash=Math.max(0,g.cash-80);g.rate=Math.max(1,g.rate-.07);g.returns++;g.customer=false;g.order=null;$("avatar").classList.remove("wait");tick(7);log("↩️ Возврат оформлен. Расход −80 ₽, рейтинг немного снизился.");render()}
+function truck(){if(g.mins>=480)return modal("Смена окончена","Начни новый день.");let n=Math.floor(Math.random()*5)+3;if(g.stock+n>20+(g.shelf?10:0))n=Math.max(0,20+(g.shelf?10:0)-g.stock);if(!n)return modal("Склад переполнен","Выдай несколько заказов или купи стеллажи.");g.stock+=n;g.taskDelivery++;g.cash-=150;tick(18);log(`🚚 Приёмка завершена: +${n} посылок. Расход на разгрузку −150 ₽.`);render()}
+function upgrade(t){let cost={scanner:8000,shelf:6000,coffee:3000}[t];if(g[t])return modal("Уже куплено","Это улучшение уже установлено.");if(g.cash<cost)return modal("Не хватает денег",`Нужно ${rub(cost)}.`);g.cash-=cost;g[t]=true;log("🛠️ Улучшение куплено: "+({scanner:"быстрый сканер",shelf:"дополнительные стеллажи",coffee:"кофе для клиентов"}[t])+".");render()}
+function hire(){if(g.staff)return modal("Сотрудник уже есть","На первом этапе достаточно одного помощника.");if(g.cash<12000)return modal("Не хватает денег","Для найма нужно 12 000 ₽.");g.cash-=12000;g.staff=1;log("👨‍💼 Нанят сотрудник. Он помогает с потоком клиентов.");render()}
+function branch(){if(g.branches>=5)return modal("Сеть уже большая","У тебя максимальные 5 пунктов в этой версии.");if(g.cash<100000)return modal("Нужно больше денег","Открытие нового ПВЗ стоит 100 000 ₽.");g.cash-=100000;g.branches++;log("🏪 Открыт новый ПВЗ! Каждый день сеть приносит дополнительный доход.");render()}
+function nextDay(){if(g.customer){g.rate=Math.max(1,g.rate-.2);log("⚠️ Клиент остался без заказа — рейтинг снижен.");g.customer=false;g.order=null;$("avatar").classList.remove("wait")}let rent=2500*g.branches,wages=1200*g.staff,network= Math.max(0,g.branches-1)*3500,bonus=g.served*30;g.cash+=network+bonus-rent-wages;let net=network+bonus-rent-wages;g.mins=0;g.taskServe=0;g.taskScan=0;g.taskDelivery=0;g.found=false;g.scanned=false;log(`🌙 День закрыт: ${net>=0?"+":"−"}${rub(Math.abs(net))} после аренды и зарплат.`);modal("Смена завершена",`Заказов выдано всего: ${g.served}. Возвратов: ${g.returns}. Баланс: ${rub(g.cash)}. ${net>=0?"День прибыльный!":"Нужно увеличить поток заказов."}`);render()}
+log("👋 Добро пожаловать на первую смену. Позови клиента, найди посылку и отсканируй её.");render();
+</script></body></html>
